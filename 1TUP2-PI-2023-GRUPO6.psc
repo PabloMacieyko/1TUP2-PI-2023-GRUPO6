@@ -373,3 +373,273 @@ Funcion MostrarEstadisticas(lista, n)
     Escribir "Promedio de ventas mensual por artículo: ", promedioVentas;
 	
 FinFuncion
+
+
+
+
+------------------------------------------------------------------------------------------
+
+
+
+
+
+Algoritmo TUP102GRUPO6	
+	definir cantidadArticulosALaVenta, i, opc como entero
+	definir ventas como real;
+	definir articulos como caracter;
+	definir valores como real;
+	definir valido como logico;
+	
+	escribir "Cuantos articulos hay a la venta?";
+	leer cantidadArticulosALaVenta;
+	
+	Dimension articulos[cantidadArticulosALaVenta,2];
+	Dimension valores[cantidadArticulosALaVenta, 6];
+	
+	Para i = 0 hasta cantidadArticulosALaVenta - 1 Hacer
+		escribir "Datos del artículo ", i+1;
+		escribir "Ingrese el código del producto";
+		Repetir
+			leer articulos[i,0];
+			valido = validarCodigo(articulos [i,0]);
+			
+			Mientras  Que !valido;
+				escribir "Ingrese la descripción del producto";
+				leer articulos[i,1];
+				escribir "Ingrese el precio de venta del producto";
+				leer valores[i,0];
+				escribir "Ingrese la cantidad existente";
+				leer valores[i,1];
+				escribir "Cantidad vendida en la primera quincena";
+				leer valores[i,2];
+				escribir "Cantidad vendida en la segunda quincena";
+				leer valores[i,3];
+				valores[i,4] = CalcularStock(valores,i);
+				valores[i,5] = CalcularVentasDelMes(valores,i);
+			FinPara
+			
+			Repetir
+				escribir "Seleccione una opción:";
+				escribir "1. Mostrar articulos de artículos ordenada por descripción";
+				escribir "2. Mostrar articulos de artículos ordenada por cantidad vendida";
+				escribir "3. Mostrar stock actual de artículos";
+				escribir "4. Buscar artículo por código";
+				escribir "5. Mostrar estadísticas";
+				escribir "6. Salir";
+				leer opc;
+				
+				Segun opc Hacer
+					1:
+						OrdenarArticulosPorDescripcion(articulos, valores, cantidadArticulosALaVenta);
+					2:
+						OrdenarArticulosPorCantidadVendida(articulos, valores, cantidadArticulosALaVenta);
+					3:
+						MostrarStock(articulos, valores, cantidadArticulosALaVenta);
+					4:
+						BuscarArticuloPorCodigo(articulos, valores, cantidadArticulosALaVenta);
+					5:
+						MostrarEstadisticas(articulos, valores, cantidadArticulosALaVenta);						
+					De Otro Modo:
+						escribir "Error, elige nuevamente";
+				FinSegun
+			Hasta Que opc = 6
+			
+FinAlgoritmo
+
+Funcion resto = CalcularStock(valores,i)	
+	Definir resto como Real;
+	resto = valores[i,0] - valores[i,1] - valores[i,2];
+FinFuncion
+
+Funcion valido = validarCodigo(codigo)
+	
+	Definir valido Como Logico;
+	Definir rubro, numeroArticulo, codi Como Entero;
+	
+	codi <- convertiranumero(codigo);
+	rubro <- trunc (codi / 100000);
+	numeroArticulo <- trunc(codi % 100000);
+	
+	Si rubro <> 100 | rubro <> 300 | rubro <> 450 | rubro <> 680 | rubro <> 720 Entonces
+		Si numeroArticulo >= 0 & numeroArticulo <= 99999 Entonces
+			valido = Verdadero;
+		SiNo
+			valido = Falso;
+		FinSi
+	SiNo
+		valido = falso;
+	FinSi
+	
+FinFuncion
+
+
+
+Funcion ventas = CalcularVentasDelMes(valores, i)
+	
+	Definir ventas, PriQuin, SegQuin, precio Como real;
+	
+	precio <- valores[i,0];     
+	PriQuin <- valores[i,2];
+	SegQuin <- valores[i,3];
+	ventas = (PriQuin + SegQuin) * precio;
+	
+FinFuncion
+
+SubProceso MostrarStock(articulos, valores, cantidadArticulosALaVenta)
+	Definir i Como Entero;
+	
+	Para i=0 hasta cantidadArticulosALaVenta-1 Hacer
+		escribir "Codigo del producto: ",articulos[i,0];
+		escribir "Descripcion: ",articulos[i,1];
+		escribir "Stock actual: ", valores[i,4];
+		escribir " ";
+	FinPara
+	
+FinSubProceso
+
+SubProceso BuscarArticuloPorCodigo(articulos, valores, cantidadArticulosALaVenta)
+	escribir "Ingrese el codigo del producto";
+	
+	definir encontrado como logico;
+	encontrado <- falso;
+	Repetir
+		leer codigo;
+		Mientras  Que !valido;
+			para i = 0 hasta cantidadArticulosALaVenta - 1 hacer	
+				si codigo = articulos[i,0] Entonces
+					encontrado <- Verdadero;
+					escribir "Descripcion: ",articulos[i,1];
+					escribir "Ventas de la primera quincena: ", valores[i,2];
+					escribir "Ventas de la segunda quincena: ", valores[i,3];
+					escribir "Stock actual: ",valores[i,4];
+					escribir "El importe total es: ", valores[i,5];
+				FinSi
+			FinPara
+			si !encontrado Entonces
+				escribir "No existe artículo con ese código.";
+			FinSi
+FinSubProceso
+
+SubProceso  OrdenarArticulosPorDescripcion(articulos, valores, cantidadArticulosALaVenta)
+	
+	Definir i, j, k, posMenor como entero;
+	Definir tempCodigo, tempDescripcion Como caracter;
+	definir tempPrecio, tempStockInicial, tempVentasPrimeraQuincena, tempVentasSegundaQuincena, tempStockActual, tempVentas como Real;
+	
+    Para i <- 0 Hasta cantidadArticulosALaVenta - 2 Hacer
+		posMenor <- i;
+        Para j <- i+1 Hasta cantidadArticulosALaVenta - 1 Hacer
+            Si articulos[j,1] > articulos[j,posMenor] Entonces
+				posMenor <- j;
+            FinSi
+        FinPara
+		tempCodigo <- articulos[i,0];
+		tempDescripcion <- articulos[i, 1];
+		tempPrecio <- valores[i, 0];
+		tempStockInicial <- valores[i, 1];
+		tempVentasPrimeraQuincena <- valores[i, 2];
+		tempVentasSegundaQuincena <- valores[i, 3];
+		tempStockActual <- valores[i, 4];
+		tempVentas <- valores[i, 5];
+		
+		articulos[i,0] <- articulos[posMenor, 0];
+		articulos[i,1] <- articulos[posMenor, 1];
+		valores[i,0] <- valores[posMenor, 0];
+		valores[i,1] <- valores[posMenor, 1];
+		valores[i,2] <- valores[posMenor, 2];
+		valores[i,3] <- valores[posMenor, 3];
+		valores[i,4] <- valores[posMenor, 4];
+		valores[i,5] <- valores[posMenor, 5];
+		
+		articulos[posMenor, 0] <- tempCodigo;		
+		articulos[posMenor, 1] <- tempDescripcion;
+		valores[posMenor, 0] <- tempPrecio;
+		valores[posMenor, 1] <- tempStockInicial;
+		valores[posMenor, 2] <- tempVentasPrimeraQuincena;
+		valores[posMenor, 3] <- tempVentasSegundaQuincena;
+		valores[posMenor, 4] <- tempStockActual;
+		valores[posMenor, 5] <- tempVentas;
+    FinPara
+	
+    Escribir "Articulos de artículos ordenada por descripción:";
+    Para i <- 0 Hasta cantidadArticulosALaVenta - 1 Hacer
+        Escribir "Código: ", articulos[i,0];
+        Escribir "Descripción: ", articulos[i,1];
+		Escribir "Precio Venta: ", valores[i,0];
+    FinPara
+	
+FinSubProceso
+
+SubProceso OrdenarArticulosPorCantidadVendida(articulos, valores, cantidadArticulosALaVenta)
+	
+	Definir i, j, k, posMenor como entero;
+	Definir tempCodigo, tempDescripcion Como caracter;
+	definir tempPrecio, tempStockInicial, tempVentasPrimeraQuincena, tempVentasSegundaQuincena, tempStockActual, tempVentas como Real;
+	
+    Para i <- 0 Hasta cantidadArticulosALaVenta - 2 Hacer
+		posMenor <- i;
+        Para j <- i+1 Hasta cantidadArticulosALaVenta - 1 Hacer
+            Si valores[j,1] < valores[j, posMenor] Entonces
+				posMenor <- j; 
+            FinSi
+        FinPara
+		tempCodigo <- articulos[i,0];
+		tempDescripcion <- articulos[i, 1];
+		tempPrecio <- valores[i, 0];
+		tempStockInicial <- valores[i, 1];
+		tempVentasPrimeraQuincena <- valores[i, 2];
+		tempVentasSegundaQuincena <- valores[i, 3];
+		tempStockActual <- valores[i, 4];
+		tempVentas <- valores[i, 5];
+		
+		articulos[i,0] <- articulos[posMenor, 0];
+		articulos[i,1] <- articulos[posMenor, 1];
+		valores[i,0] <- valores[posMenor, 0];
+		valores[i,1] <- valores[posMenor, 1];
+		valores[i,2] <- valores[posMenor, 2];
+		valores[i,3] <- valores[posMenor, 3];
+		valores[i,4] <- valores[posMenor, 4];
+		valores[i,5] <- valores[posMenor, 5];
+		
+		articulos[posMenor, 0] <- tempCodigo;		
+		articulos[posMenor, 1] <- tempDescripcion;
+		valores[posMenor, 0] <- tempPrecio;
+		valores[posMenor, 1] <- tempStockInicial;
+		valores[posMenor, 2] <- tempVentasPrimeraQuincena;
+		valores[posMenor, 3] <- tempVentasSegundaQuincena;
+		valores[posMenor, 4] <- tempStockActual;
+		valores[posMenor, 5] <- tempVentas;
+    FinPara
+	
+	
+    Escribir "Articulos de artículos ordenada por cantidad vendida:";
+    Para i <- 0 Hasta cantidadArticulosALaVenta-1 Hacer
+        Escribir "Código: ", articulos[i,0];
+        Escribir "Descripción: ", articulos[i,1];
+        Escribir "Cantidad total vendida en el mes: ", valores[i,5];
+        Escribir "Importe total de la venta: ", valores[i,5] * valores[i,0];
+    FinPara
+FinSubProceso
+
+Funcion rubroObtenido = ObtenerRubro(codigo) 
+	
+	rubroObtenido = ConvertirATexto(100);
+FinSubProceso
+SubProceso  MostrarEstadisticas(articulos, valores, cantidadArticulosALaVenta)	
+	Definir i como Entero;
+	Definir rubroActual como Caracter;
+	Definir porcentajeVentasPorRubro como Real;
+	Definir porcentajeVentaQuincena1PorRubro como Real;
+	Definir porcentajeVentaQuincena2PorRubro como Real;
+	Definir rubroMasVendido como Caracter;
+	Definir cantidadRubros como Entero;	
+	
+	rubroActual <- ObtenerRubro(articulos[0, 0]) 
+    Para i <- 0 Hasta cantidadArticulosALaVenta-1 Hacer
+		Si rubroActual == ObtenerRubro(articulos[i, 0]) Entonces
+			// TODO
+		FinSi
+	FinPara
+		
+FinSubProceso
+
